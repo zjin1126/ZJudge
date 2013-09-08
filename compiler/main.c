@@ -9,6 +9,11 @@
 #include <sys/resource.h>
 
 enum {
+    LANG_C,
+    LANG_CXX,
+};
+
+enum {
     CP_NML,
     CP_CE,
 };
@@ -23,6 +28,7 @@ char compile_command[1024];
 const char *CMD_C[] = {"gcc", "-lm", "--static", "-Wall", "-fno-asm", "-O2", "-o", NULL};
 const char *CMD_CXX[] = {"g++", "-lm", "--static", "-Wall", "-fno-asm", "-O2", "-o", NULL};
 char source[1024], binary[1024];
+int lang;
 pid_t cpid;
 
 void result(int rs, ...) {
@@ -44,16 +50,23 @@ void result(int rs, ...) {
             perror("Unexpected Error\n");
         }
     }
-    printf("%d\n%d\n", rs, arg);
+    printf("%d %d\n", rs, arg);
     exit(0);
 }
 
 void genCmd()
 {
     int i;
-    for(i = 0; CMD_C[i] != NULL; i++)
-        sprintf(compile_command, "%s %s", compile_command, CMD_C[i]);
-
+    switch(lang) {
+        case(LANG_C):
+            for(i = 0; CMD_C[i] != NULL; i++)
+                sprintf(compile_command, "%s %s", compile_command, CMD_C[i]);
+            break;
+        case(LANG_CXX):
+            for(i = 0; CMD_CXX[i] != NULL; i++)
+                sprintf(compile_command, "%s %s", compile_command, CMD_CXX[i]);
+            break;
+    }
     sprintf(compile_command, "%s %s %s", compile_command, binary, source);
 }
 
@@ -66,7 +79,7 @@ void compile()
 {
     cpid = fork();
     if(cpid < 0) {
-        perror("Compile Fork Error!!\n");
+        perror("Compile Fork Error");
         exit(1);
     } else if(cpid == 0) {
         doCompile();
@@ -94,14 +107,15 @@ int main(int argc, char *argv[])
 {
     if(argc < 2) {
         printf("ERROR: Not enough arguments\n"\
-                "Format: compiler [source] [binary]\n");
+                "Format: compiler [source] [binary] [lang]\n");
         exit(1);
     } else {
         strcpy(source, argv[1]);
         strcpy(binary, argv[2]);
+        lang = atoi(argv[3]);
     }
     srcExist();
     genCmd();
     compile();
-    return EXIT_SUCCESS;
+    return 0;
 }
