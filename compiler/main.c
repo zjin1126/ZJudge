@@ -22,6 +22,7 @@ enum {
     CE_SIG,
     CE_NOSRC,
     CE_NOBIN,
+    CE_NOLANG
 };
 
 char compile_command[1024];
@@ -46,6 +47,8 @@ void result(int rs, ...) {
             perror("Source Not Exist\n");
         } else if(arg == CE_NOBIN) {
             perror("Binary Not Exist\n");
+        } else if(arg == CE_NOLANG) {
+            perror("No Such LANG\n");
         } else {
             perror("Unexpected Error\n");
         }
@@ -103,9 +106,16 @@ void srcExist()
     }
 }
 
+void binExist()
+{
+    if(access(binary, F_OK) == 0) {
+        remove(binary);
+    }
+}
+
 int main(int argc, char *argv[])
 {
-    if(argc < 2) {
+    if(argc < 4) {
         printf("ERROR: Not enough arguments\n"\
                 "Format: compiler [source] [binary] [lang]\n");
         exit(1);
@@ -113,8 +123,11 @@ int main(int argc, char *argv[])
         strcpy(source, argv[1]);
         strcpy(binary, argv[2]);
         lang = atoi(argv[3]);
+        if(lang > 1)
+            result(CP_CE, CE_NOLANG);
     }
     srcExist();
+    binExist();
     genCmd();
     compile();
     return 0;
