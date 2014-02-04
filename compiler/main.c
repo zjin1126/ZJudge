@@ -57,29 +57,26 @@ void result(int rs, ...) {
     exit(0);
 }
 
-void genCmd()
-{
+void genCmd() {
     int i;
     switch(lang) {
-        case(LANG_C):
-            for(i = 0; CMD_C[i] != NULL; i++)
-                sprintf(compile_command, "%s %s", compile_command, CMD_C[i]);
-            break;
-        case(LANG_CXX):
-            for(i = 0; CMD_CXX[i] != NULL; i++)
-                sprintf(compile_command, "%s %s", compile_command, CMD_CXX[i]);
-            break;
+    case(LANG_C):
+        for(i = 0; CMD_C[i] != NULL; i++)
+            sprintf(compile_command, "%s %s", compile_command, CMD_C[i]);
+        break;
+    case(LANG_CXX):
+        for(i = 0; CMD_CXX[i] != NULL; i++)
+            sprintf(compile_command, "%s %s", compile_command, CMD_CXX[i]);
+        break;
     }
     sprintf(compile_command, "%s %s %s", compile_command, binary, source);
 }
 
-void doCompile()
-{
+void doCompile() {
     execl("/bin/sh", "sh", "-c", compile_command, NULL);
 }
 
-void compile()
-{
+void compile() {
     cpid = fork();
     if(cpid < 0) {
         perror("Compile Fork Error");
@@ -99,26 +96,23 @@ void compile()
     }
 }
 
-void srcExist()
-{
+void srcExist() {
     if(access(source, F_OK) == -1) {
         result(CP_CE, CE_NOSRC);
     }
 }
 
-void binExist()
-{
+void binExist() {
     if(access(binary, F_OK) == 0) {
         remove(binary);
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     if(argc < 4) {
         printf("ERROR: Not enough arguments\n"\
-                "Format: compiler [source] [binary] [lang]\n");
-        exit(1);
+          "Format: compiler [source] [binary] [lang]\n");
+        return EXIT_FAILURE;
     } else {
         strcpy(source, argv[1]);
         strcpy(binary, argv[2]);
