@@ -177,7 +177,7 @@ void run(char *path) {
 int main(int argc, char *argv[]) {
     if(argc < 7) {
         printf("ERROR: Not enough arguments\n"\
-          "Format: executor [binary] [input] [output] [time] [memory] [fsize]\n");
+          "Format: executor [binary] [input] [output] [time] [memory] [output_size]\n");
         return EXIT_FAILURE;
     } else {
         binExist(argv[1]); 
